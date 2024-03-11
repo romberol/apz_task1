@@ -1,8 +1,8 @@
 from flask import Flask, request, jsonify
+import sys
+from hazelcast_client import distributed_map
 
 app = Flask(__name__)
-messages = {}
-
 
 @app.route("/log", methods=["POST", "GET"])
 def log():
@@ -11,15 +11,19 @@ def log():
         message_id = data['id']
         msg = data['msg']
 
-        messages[message_id] = msg
+        distributed_map.put(message_id, msg)
 
         print(f"Received message: {msg} with ID: {message_id}")
 
         return jsonify({"status": "success"})
     elif request.method == "GET":
-        all_messages = ", ".join(messages.values())
+        all_messages = " ".join(list(distributed_map.values()))
         return all_messages
 
 
 if __name__ == '__main__':
-    app.run(port=8081)
+    if len(sys.argv) == 1:
+        print("You need to specify port!!!")
+        exit()
+
+    app.run(port=int(sys.argv[1]))
