@@ -13,3 +13,4 @@ client = hazelcast.HazelcastClient(
 )
 
 distributed_map = client.get_map("distributed-map").blocking()
+messages_queue = client.get_queue("messages-queue").blocking()
